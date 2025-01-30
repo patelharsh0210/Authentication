@@ -142,3 +142,44 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
+/**
+ * @route   GET /me
+ * @desc    Get the currently logged in user
+ * @access  Private
+ */
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: (req as any).user.id,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+      return;
+    } else {
+      res.status(200).json({
+        message: "User found",        
+        success: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error getting user:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+
+  }
+};
